@@ -17,7 +17,7 @@ PAC: Peripheral access control, 用于抽象芯片底层寄存器的操作接口
 cargo run test/EFR32MG1B.svd
 ```
 
-### ubuntu/deepin上执行执行
+### ubuntu/deepin上直接执行
 ```bash
 # 转换芯片 EFR32MG1B
 ./bin/svd2cpp test/EFR32MG1B.svd
