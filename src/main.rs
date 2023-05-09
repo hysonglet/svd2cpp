@@ -234,7 +234,7 @@ fn device_header_file_add_peri(peripheral: &PeripheralInfo, cpp: &mut Cpp) {
     // 添加外设地址
     cpp.device_file_append(
         format!(
-            "volatile {} *PAC_{} = ({} *)0x{:x};",
+            "{} *PAC_{} = ({} *)0x{:x};",
             peripheral_name.to_uppercase(),
             peripheral_name.to_uppercase(),
             peripheral_name.to_uppercase(),
@@ -374,7 +374,7 @@ fn register_struct_create(strcut_name: &str, register: &RegisterInfo, cpp: &mut 
     if let Some(acc) = properties.access {
         if acc == svd::svd::Access::ReadOnly {
             cpp.append(
-                format!("ReadOnly<{reg_type}> r;").as_str(),
+                format!("public: ReadOnly<{reg_type}> r;").as_str(),
                 Tab::KEEP,
                 Tab::KEEP,
             );
@@ -384,7 +384,7 @@ fn register_struct_create(strcut_name: &str, register: &RegisterInfo, cpp: &mut 
     if let Some(acc) = properties.access {
         if acc == svd::svd::Access::WriteOnce || acc == svd::svd::Access::WriteOnly {
             cpp.append(
-                format!("WriteOnly<{reg_type}> r;").as_str(),
+                format!("public: WriteOnly<{reg_type}> r;").as_str(),
                 Tab::KEEP,
                 Tab::KEEP,
             );
@@ -394,7 +394,7 @@ fn register_struct_create(strcut_name: &str, register: &RegisterInfo, cpp: &mut 
     if let Some(acc) = properties.access {
         if acc == svd::svd::Access::ReadWrite {
             cpp.append(
-                format!("ReadWrite<{reg_type}> r;").as_str(),
+                format!("public: ReadWrite<{reg_type}> r;").as_str(),
                 Tab::KEEP,
                 Tab::KEEP,
             );
@@ -404,6 +404,8 @@ fn register_struct_create(strcut_name: &str, register: &RegisterInfo, cpp: &mut 
     // 提前添加位域的枚举
     if let Some(fields) = &register.fields {
         register_fields_mask_enum_create(fields, cpp);
+        register_fields_offset_enum_create(fields, cpp);
+        register_fields_width_enum_create(fields, cpp);
         register_fields_enum_create(fields, cpp);
         let reg_size = if let Some(size) = register.properties.size {
             size / 8
@@ -419,6 +421,50 @@ fn register_struct_create(strcut_name: &str, register: &RegisterInfo, cpp: &mut 
         Tab::DEC,
         Tab::KEEP,
     );
+}
+
+fn register_fields_width_enum_create(fields: &Vec<MaybeArray<FieldInfo>>, cpp: &mut Cpp) {
+    cpp.append(
+        format!("public: enum width_t{{").as_str(),
+        Tab::KEEP,
+        Tab::INC,
+    );
+    for field in fields {
+        // println!("{:?}", field.name());
+        cpp.append(
+            format!(
+                "WIDTH_{:10} = 0x{:08x},",
+                field.name(),
+                field.bit_width()
+            )
+            .as_str(),
+            Tab::KEEP,
+            Tab::KEEP,
+        );
+    }
+    cpp.append(format!("}};").as_str(), Tab::DEC, Tab::KEEP);
+}
+
+fn register_fields_offset_enum_create(fields: &Vec<MaybeArray<FieldInfo>>, cpp: &mut Cpp) {
+    cpp.append(
+        format!("public: enum offset_t{{").as_str(),
+        Tab::KEEP,
+        Tab::INC,
+    );
+    for field in fields {
+        // println!("{:?}", field.name());
+        cpp.append(
+            format!(
+                "OFFSET_{:10} = 0x{:08x},",
+                field.name(),
+                field.bit_offset()
+            )
+            .as_str(),
+            Tab::KEEP,
+            Tab::KEEP,
+        );
+    }
+    cpp.append(format!("}};").as_str(), Tab::DEC, Tab::KEEP);
 }
 
 fn register_fields_mask_enum_create(fields: &Vec<MaybeArray<FieldInfo>>, cpp: &mut Cpp) {
@@ -515,7 +561,7 @@ fn register_fields_struct_create(register: &RegisterInfo, cpp: &mut Cpp, reg_siz
         // 添加位域
         cpp.append(
             format!(
-                "private: {:10} _{} : {};",
+                "public: {:10} _{} : {};",
                 reg_type,
                 field.name().to_lowercase(),
                 field.bit_width()

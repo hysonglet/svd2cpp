@@ -25,6 +25,19 @@ public:
     inline void clear_mask(T mask){_r &= ~mask;}
 	/* set mask register to 1 */
 	inline void set_mask(T mask){_r |= mask;}
+    inline void write_mask(T v,T mask){
+        v &= mask;
+        _r &= ~mask;
+        _r |= v;
+    }
+     inline void write_bits(T v, int start, int width){
+        T mask;
+        mask = ((0x01 << width) - 1) << start;
+        v <<= start;
+        v &= mask;
+        _r &= ~(mask);
+        _r |= v;
+    }
 };
 
 template <typename T>
@@ -41,9 +54,22 @@ public:
     /* write register */
     inline void write(T var){_r = var;}
 	/* set mask register to 0 */
-    inline void clear_mask(T mask){_r &= ~mask;}
+    inline void clear_mask(T mask){_r &= (~mask);}
 	/* set mask register to 1 */
 	inline void set_mask(T mask){_r |= mask;}
+	inline void write_mask(T v,T mask){
+        v &= mask;
+        _r &= ~mask;
+        _r |= v;
+    }
+    inline void write_bits(T v, int start, int width){
+        T mask;
+        mask = ((0x01 << width) - 1) << start;
+        v <<= start;
+        v &= mask;
+        _r &= ~(mask);
+        _r |= v;
+    }
 };
 
 
