@@ -489,7 +489,13 @@ fn register_fields_struct_create(register: &RegisterInfo, cpp: &mut Cpp, reg_siz
         Tab::INC,
     );
     let mut offset_idx = 0;
-
+    // println!("{}", fields.
+    let mut v: Vec<&MaybeArray<FieldInfo>> = Vec::new();
+    for field in fields{
+        v.push(field);
+    }
+    v.sort_by(|a, b| a.bit_offset().cmp(&b.bit_offset()));
+    let fields = v;
     for field in fields {
         if offset_idx != field.bit_offset() {
             // 添加保留字段
