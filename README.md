@@ -11,13 +11,13 @@ PAC: Peripheral access control, 用于抽象芯片底层寄存器的操作接口
 
 ## 使用
 
-### 编译并执行
+### 编译并执行(根据最新的提交生成的bin)
 ```bash
 # 编译rust代码，然后执行转换芯片 svd 文件到 pac 接口
 cargo run test/EFR32MG1B.svd
 ```
 
-### ubuntu/deepin上直接执行
+### ubuntu/deepin上直接执行(bin可能不是最新的)
 ```bash
 # 转换芯片 EFR32MG1B
 ./bin/svd2cpp test/EFR32MG1B.svd
